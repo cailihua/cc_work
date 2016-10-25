@@ -1,54 +1,46 @@
 //@ sourceMappingURL=jquery.numeric.min.map
 (function($){ 
     var defaults = {
-        startDateParam:false,
-        endDateParam:false,
-        decimalParam:0,
-        isNum:false
+        dateLinkageParam:false,//开始时间联动
+        dateLinkageObj :'.endDateNew',
+        compareDateParam:false,//开始时间和结束时间对比
+        compareDateObj :'.startDateNew',
+        divObj : '.date_info'
+
     };
-    var selectDatepicker = function(obj) {
-        var prevendobj = $(obj).parent().parent().prev().find("div").last().children()[0];
+    var selectDatepicker = function(obj, dateLinkageObj, divObj) {
+        var prevendobj = $(obj).parents(divObj).prev().find(dateLinkageObj)[0];
         if (prevendobj != undefined && 　prevendobj.value != "") {
             var splitstr = prevendobj.value.split("-");
-            var startvalue = (parseInt(splitstr[1]) + 1) > 12 ? (parseInt(splitstr[0]) + 1) + "-01" : (parseInt(splitstr[1]) + 1) < 10 ? splitstr[0] + "-0" + (parseInt(splitstr[1]) + 1) : splitstr[0] + "-" + (parseInt(splitstr[1]) + 1);
+            var startvalue = (Number(splitstr[1]) + 1) > 12 ? (Number(splitstr[0]) + 1) + "-01" : (Number(splitstr[1]) + 1) < 10 ? splitstr[0] + "-0" + (Number(splitstr[1]) + 1) : splitstr[0] + "-" + (Number(splitstr[1]) + 1);
             $(obj).val(startvalue);
             $(obj).attr("disabled", "disabled");
         }
     }
-    var compareDate = function(endDate){
-        if(endDate == null)
+
+     var compareDate = function(endDate, compareDateObj, divObj){
+        if(endDate == null || endDate.value == "")
             return;
-        var StartDate = $(endDate).parent().prev().prev().children()[0].value;
-        var start=new Date(StartDate.replace("-", "/").replace("-"));
+        var StartDate =$(endDate).parents(divObj).find(compareDateObj)[0].value;
         var EndDate = $(endDate).val();
-        var end=new Date(EndDate.replace("-", "/").replace("-", "/"));
-        if(end<start){
+        if(EndDate < StartDate){
             alert("结束时间必须大于起始时间！");
             $(endDate).val("");
         }
         return true;
-    }
+    } 
+
     $.fn.inputMethod = function(options){  
         var opts = $.extend({},defaults, options);
         $(this).each(function(){
-            if($(this).val() != "")
-                return;
-            if(opts.startDateParam == true){
-                selectDatepicker(this);
+            if(opts.dateLinkageParam == true){
+                selectDatepicker(this, opts.dateLinkageObj, opts.divObj);
             }
-            if(opts.endDateParam == true){
+            if(opts.compareDateParam == true){
                 $(this).change(function(){
-                    compareDate(this);
+                    compareDate(this, opts.compareDateObj, opts.divObj);
                 });       
-            }
-            if(opts.decimalParam){
-                $(this).change(function(){
-                    $(this).val(parseInt($(this).val()).toFixed(opts.decimalParam));
-                });
-            } 
-            if(opts.isNum == true){
-                $(this).numeric();
-            }           
+            }        
         });  
-    };
+
 })( jQuery );
